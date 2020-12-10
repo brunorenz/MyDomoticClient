@@ -2,6 +2,11 @@
   "name": "mydomotic-client",
   "version": "0.2.0",
   "private": true,
+  "description": "Domotic Client application",
+  "author": {
+    "email": "65bruno@gmail.com",
+    "name": "Bruno Renzoni"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

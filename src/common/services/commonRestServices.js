@@ -9,9 +9,11 @@ let serviceDefinition = function(url, method) {
 };
 
 let serviceDefinitionPOST = function(url) {
+  let prefix = "";
+  if (process.env.VUE_APP_URL_SECURITY_SERVER === 'local') prefix = "p/";
   return {
     request: {},
-    url: "p/" + url,
+    url: prefix + url,
     method: "POST",
   };
 };

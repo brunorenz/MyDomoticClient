@@ -76,9 +76,8 @@ export default {
       let info = getServiceInfo(LOGIN);
       let hash = this.$crypto.MD5(this.password);
       info.request = {
-        email: this.email,
-        password: this.password,
-        passwordMd5: hash.toString(this.$crypto.enc.Hex).toUpperCase(),
+        userId: this.email,
+        password: hash.toString(this.$crypto.enc.Hex).toUpperCase(),
         application: "MyDomotic",
       };
       try {
@@ -87,7 +86,8 @@ export default {
           .then((response) => {
             let dati = response.data;
             if (dati.error.code === 0) {
-              doLogon(dati.data.uniqueId);
+              let out = process.env.VUE_APP_URL_SECURITY_SERVER === "local" ? dati.data : dati;
+              doLogon(out.uniqueId);
               let r = router.history.current;
               let redirect = "/";
               if (typeof r.query.redirect != "undefined")

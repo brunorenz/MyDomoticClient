@@ -47,7 +47,8 @@ export default class HttpManager {
 
   getUrl(functionUrl, queryParams, url) {
     if (typeof url === "undefined") url = this.configuration.urlApp;
-    var outUrl = this.configuration.serverUrl + url + functionUrl;
+    //var outUrl = this.configuration.serverUrl + url + functionUrl;
+    var outUrl = url + functionUrl;
     if (queryParams) {
       let key = Object.keys(queryParams);
       if (key != undefined) {

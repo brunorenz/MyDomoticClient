@@ -1,5 +1,6 @@
 export const LOGIN = "login";
 export const LOGOUT = "logout";
+export const CHECKUID = "checkUid";
 
 const METHOD = { POST: 1, GET: 2 };
 import { getConfiguration } from "@/common/configuration";
@@ -15,6 +16,7 @@ let serviceDefinitionPOST = function(url) {
     request: {},
     url: prefix + url,
     method: "POST",
+    skipCheckUid : false,
   };
 };
 
@@ -23,24 +25,36 @@ let serviceDefinitionGET = function(url) {
     query: {},
     url: "g/" + url,
     method: "GET",
+    skipCheckUid : false,
   };
 };
+
+let checkUid = function() {
+  let r = serviceDefinitionPOST(CHECKUID);
+  r.baseUrl = getConfiguration().urlSecurity;
+  r.skipCheckUid = true;
+  return r;
+};
+
 
 let login = function() {
   let r = serviceDefinitionPOST(LOGIN);
   r.baseUrl = getConfiguration().urlSecurity;
+  r.skipCheckUid = true;
   return r;
 };
 
 let logout = function() {
   let r = serviceDefinitionPOST(LOGOUT);
   r.baseUrl = getConfiguration().urlSecurity;
+  r.skipCheckUid = true;
   return r;
 };
 
 const serviceConfiguration = {
   login,
   logout,
+  checkUid,
 };
 
 export function getServiceInfo(serviceName) {

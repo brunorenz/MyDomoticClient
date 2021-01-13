@@ -15,14 +15,14 @@
                 <b-form-input
                   type="text"
                   class="form-control"
-                  placeholder="Email"
+                  placeholder="UseriD"
                   autocomplete="username email"
                   v-model="email"
                   required
                   autofocus
                 />
               </b-input-group>
-              <b-input-group class="mb-4">
+              <b-input-group class="mb-3">
                 <b-input-group-prepend
                   ><b-input-group-text
                     ><i class="fa fa-lock"></i></b-input-group-text
@@ -36,6 +36,12 @@
                   required
                 />
               </b-input-group>
+              <b-input-group class="mb-4 ml-3">
+                <b-form-checkbox
+                  v-model="saveUser"
+                  required
+                >Salva dati di login</b-form-checkbox>
+              </b-input-group>
               <b-row>
                 <b-col cols="6">
                   <b-button variant="primary" class="px-4" @click="handleSubmit"
@@ -43,8 +49,8 @@
                   >
                 </b-col>
                 <b-col cols="6" class="text-right">
-                  <b-button variant="link" class="px-0"
-                    >Password dimenticata?</b-button
+                  <b-button variant="link" class="px-0" disabled
+                    >Password dimenticata ?</b-button
                   >
                 </b-col>
               </b-row>
@@ -67,6 +73,7 @@ export default {
     return {
       email: "",
       password: "",
+      saveUser : true
     };
   },
   methods: {
@@ -75,10 +82,11 @@ export default {
       const httpService = new HttpManager();
       let info = getServiceInfo(LOGIN);
       let hash = this.$crypto.MD5(this.password);
+      console.log("APP NAME = "+process.env.VUE_APP_NAME);
       info.request = {
-        userId: this.email,
+        userid: this.email,
         password: hash.toString(this.$crypto.enc.Hex).toUpperCase(),
-        application: "MyDomotic",
+        application: process.env.VUE_APP_NAME,
       };
       try {
         httpService
@@ -86,8 +94,7 @@ export default {
           .then((response) => {
             let dati = response.data;
             if (dati.error.code === 0) {
-              let out = process.env.VUE_APP_URL_SECURITY_SERVER === "local" ? dati.data : dati;
-              doLogon(out.uniqueId);
+              doLogon(dati,this.saveUser);
               let r = router.history.current;
               let redirect = "/";
               if (typeof r.query.redirect != "undefined")

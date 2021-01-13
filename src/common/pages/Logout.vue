@@ -15,6 +15,9 @@ export default {
   },
   methods: {
     handleSubmit() {
+      document.cookie = "jwttoken=; Max-Age=-99999999;";
+    },
+    handleSubmitO() {
       const httpService = new HttpManager();
       let info = getServiceInfo(LOGOUT);
       new HttpManager()

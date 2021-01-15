@@ -24,6 +24,14 @@ let leggiAttributoLocalStorage = function(key, def) {
   return value;
 };
 
+let eliminaAttributoLocalStorage = function(key) {
+  let value = recuperaLocalStorage(KEY_USER);
+  if (value !== undefined) {
+    delete value[key];
+    window.sessionStorage.setItem(KEY_USER, JSON.stringify(value));
+  }
+};
+
 let salvaAttributoLocalStorage = function(key, value) {
   let usr = recuperaLocalStorage(KEY_USER);
   usr[key] = value;
@@ -34,9 +42,8 @@ let salvaAttributoLocalStorage = function(key, value) {
 let store = new Vuex.Store({
   state: {
     datiSessione: {},
-    datiStorage: {
-      uid: "",
-    },
+    datiStorage: {},
+    uid: "",
     errorMessage: {},
   },
   getters: {
@@ -45,7 +52,7 @@ let store = new Vuex.Store({
     },
 
     uid: (state) => {
-      let l = state.datiStorage.uid;
+      let l = state.uid;
       if (l === "") l = leggiAttributoLocalStorage("uid", "");
       return l;
     },
@@ -75,6 +82,18 @@ let store = new Vuex.Store({
     logon(state, uid) {
       state.uid = uid;
       salvaAttributoLocalStorage("uid", uid);
+    },
+
+    logoff(state) {
+      state.uid = "";
+      eliminaAttributoLocalStorage("uid");
+    },
+
+    removeKeyStorage(state, key) {
+      if (key) {
+        delete state.datiStorage[key];
+        eliminaAttributoLocalStorage(key);
+      }
     },
 
     updateKeyStorage(state, { key, value }) {

@@ -23,13 +23,13 @@ let showMsgErroreEsecuzione = function(obj, esito, funzione) {
   let msg = "";
   if (esito === undefined) {
     let error = store.getters.errorMessage;
-    msg = "Servizio " + error.function + " : Return code : " + error.code + " , Message : " + error.message;
+    msg = "Servizio " + error.function + " : Errore : " + error.code + " - " + error.message;
   } else if (esito instanceof Error) {
     msg = esito.message;
   } else {
     msg = esito;
     if (typeof esito != "undefined" && typeof esito.code != "undefined") {
-      msg = "Return code : " + esito.code + " , Message : " + esito.message;
+      msg = "Errore : " + esito.code + " - " + esito.message;
     }
     if (typeof funzione != "undefined") msg = "Servizio " + funzione + " : " + msg;
   }
@@ -61,26 +61,7 @@ let showConfirmationMessage = function(obj, message, operation, operationParamet
     okTitleHtml: '<button type="button" class="btn rounded-button small-button m-0">Conferma</button>',
     cancelVariant: "sm",
     okVariant: "sm",
-  };
-  obj.$bvModal
-    .msgBoxConfirm(message, options)
-    .then((value) => {
-      if (value) {
-        if (operationParameter) operation(operationParameter);
-        else operation();
-      }
-    })
-    .catch((err) => {
-      console.error("Errore in display msgbox : " + err);
-    });
-};
-let showConfirmationMessageOld = function(obj, message, operation, operationParameter) {
-  let options = {
-    title: "Conferma Operazione",
-    okVariant: "success",
-    cancelVariant: "danger",
-    footerClass: "p-2 border-top-0",
-    centered: true,
+    noCloseOnBackdrop: true,
   };
   obj.$bvModal
     .msgBoxConfirm(message, options)
@@ -95,5 +76,4 @@ let showConfirmationMessageOld = function(obj, message, operation, operationPara
     });
 };
 
-//const _showConfirmationMessage = showConfirmationMessageNew;
 export { showConfirmationMessage };

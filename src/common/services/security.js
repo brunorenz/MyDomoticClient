@@ -27,8 +27,14 @@ export function isUserLogged() {
 }
 
 export function getDatiLogin() {
-  return store.getters.uid;
+  let ld = store.getters.uid;
+  if (ld === "") ld = {};
+  return ld;
 }
+
+let removeUid = function() {
+  store.commit("logoff");
+};
 
 let updateUid = function(datiLogon) {
   let l = {
@@ -37,31 +43,37 @@ let updateUid = function(datiLogon) {
     ruolo: datiLogon.ruolo,
     idRuolo: datiLogon.idRuolo,
   };
-  store.commit("updateKeyStorage", {
-    key: "uid",
-    value: l,
-  });
+  store.commit("logon", l);
 };
 
 /**
- * Get saved logon UID from local storage
+ * Recupera dati logon da localStorage
  */
 export function getLogonUid() {
   return window.localStorage.getItem(LOGONUIG);
 }
 /**
- *
+ * Aggiorna dati logon localStorage
+ * @param {} uid
  */
-export function doLogoff() {
-  updateUid("");
-  document.cookie = "jwttoken=; Max-Age=-99999999;";
-  window.localStorage.removeItem(LOGONUIG);
-}
-
 export function doUpdateUid(uid) {
   window.localStorage.setItem(LOGONUIG, uid);
 }
 
+/**
+ * Effettua logoff - rimuove dato da localStorage - azzera jwttoken - rimuove dati sessionStorage
+ */
+export function doLogoff() {
+  document.cookie = "jwttoken=; Max-Age=-99999999;";
+  removeUid();
+  window.localStorage.removeItem(LOGONUIG);
+}
+
+/**
+ * Effettua logon - salva dati in local storage se richiesto e sessionStorage
+ * @param {*} datiLogon
+ * @param {*} saveUser
+ */
 export function doLogon(datiLogon, saveUser) {
   if (typeof saveUser != "undefined") {
     if (saveUser) window.localStorage.setItem(LOGONUIG, datiLogon.uniqueId);
@@ -70,6 +82,26 @@ export function doLogon(datiLogon, saveUser) {
   updateUid(datiLogon);
 }
 
-// export function getXrfToken() {
-//   return window.sessionStorage.getItem("jwttoken");
-// }
+import HttpManager from "@/common/services/HttpManager";
+import { CHECKUID, getServiceInfo } from "@/common/services/commonRestServices";
+
+export async function checkSession() {
+  let uid = getLogonUid();
+  let info = getServiceInfo(CHECKUID);
+  info.request = {
+    uniqueId: uid,
+    application: process.env.VUE_APP_NAME,
+  };
+  const httpService = new HttpManager();
+  let response = await httpService.callAsyncNodeServer(info);
+  let dati = response.data;
+  let rc = true;
+  if (dati.error.code === 0) {
+    doUpdateUid(dati.uniqueId);
+  } else {
+    doLogoff();
+    router.push("/login");
+    rc = false;
+  }
+  return rc;
+}

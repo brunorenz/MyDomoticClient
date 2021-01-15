@@ -9,12 +9,12 @@ import { doLogoff } from "@/common/services/security";
 import router from "@/router";
 export default {
   mounted: function () {
-    doLogoff();
     this.handleSubmit();
     router.push("/login");
   },
   methods: {
     handleSubmit() {
+      doLogoff();
       document.cookie = "jwttoken=; Max-Age=-99999999;";
     },
     handleSubmitO() {

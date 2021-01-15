@@ -30,7 +30,9 @@
 </template>
 
 <script>
-import { doLogoff } from "@/common/services/security";
+import { doLogon, doLogoff, getLogonUid } from "@/common/services/security";
+import HttpManager from "@/common/services/HttpManager";
+import { LOGIN, getServiceInfo } from "@/common/services/commonRestServices";
 
 export default {
   name: "HeaderDropdownAccount",
@@ -45,11 +47,38 @@ export default {
       return logged;
     },
   },
-  mounted: function () {},
+  mounted: function () {
+    this.silentLogon();
+  },
   methods: {
     doLogoff() {
       console.log("Do logoff!");
       this.$router.push("/logout");
+    },
+    silentLogon() {
+      let uid = getLogonUid();
+      if (uid !== undefined) {
+        let info = getServiceInfo(LOGIN);
+        console.log("APP NAME = " + process.env.VUE_APP_NAME);
+        info.request = {
+          uniqueId: uid,
+          application: process.env.VUE_APP_NAME,
+        };
+        new HttpManager()
+          .callNodeServer(info)
+          .then((response) => {
+            let dati = response.data;
+            if (dati.error.code === 0) {
+              doLogon(dati.data, true);
+            } else {
+              this.$router.push("/login");
+            }
+          })
+          .catch((error) => {
+            console.log("Silent Login error : ", error);
+            this.$router.push("/login");
+          });
+      }
     },
   },
 };

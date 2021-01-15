@@ -44,7 +44,7 @@
               </b-input-group>
               <b-row>
                 <b-col cols="6">
-                  <b-button variant="primary" class="px-4" @click="handleSubmit"
+                  <b-button variant="primary" class="px-4" @click="handleSubmit" :disabled="enableLogon"
                     >Login</b-button
                   >
                 </b-col>
@@ -76,6 +76,16 @@ export default {
       saveUser : true
     };
   },
+  computed: {
+    enableLogon() {
+      return (
+        this.password === undefined ||
+        this.password === "" ||
+        this.email === undefined ||
+        this.email === ""
+      );
+    },
+  },
   methods: {
     handleSubmit(e) {
       e.preventDefault();
@@ -94,7 +104,7 @@ export default {
           .then((response) => {
             let dati = response.data;
             if (dati.error.code === 0) {
-              doLogon(dati,this.saveUser);
+              doLogon(dati.data,this.saveUser);
               let r = router.history.current;
               let redirect = "/";
               if (typeof r.query.redirect != "undefined")

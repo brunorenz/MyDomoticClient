@@ -3,7 +3,7 @@ import { getConfiguration } from "@/common/configuration";
 import { doUpdateUid, getLogonUid, SecurityConfiguration } from "@/common/services/security";
 import { CHECKUID, getServiceInfo } from "@/common/services/commonRestServices";
 
-let validateRequest = function (serviceContext) { };
+let validateRequest = function(serviceContext) {};
 
 export default class HttpManager {
   constructor() {
@@ -64,35 +64,38 @@ export default class HttpManager {
     return outUrl;
   }
 
-  async checkLogin(uid)
-  {
+  async checkLogin(uid) {
     let info = getServiceInfo(CHECKUID);
     info.request = {
       uniqueId: uid,
       application: process.env.VUE_APP_NAME,
     };
     let url = this.getUrl(info.url, info.query, info.baseUrl);
-    let response = await mainAxios.post(url, JSON.stringify(info.request), {
-      headers: this.getPostJsonSecurityHeader(),
-      withCredentials: true,
-    }).then((response) => {
-      let dati = response.data;
-      if (dati.error.code === 0) {
-        doUpdateUid(dati.uniqueId);
-      }        
-    });
+    let response = await mainAxios
+      .post(url, JSON.stringify(info.request), {
+        headers: this.getPostJsonSecurityHeader(),
+        withCredentials: true,
+      })
+      .then((response) => {
+        let dati = response.data;
+        if (dati.error.code === 0) {
+          doUpdateUid(dati.uniqueId);
+        }
+      });
   }
 
   async callNodeServer(serviceInfo) {
     let uid = getLogonUid();
-    if (uid === null || serviceInfo.skipCheckUid === true) return this._callNodeServer(serviceInfo);
+    let check = true;
+    //if (uid === null || serviceInfo.skipCheckUid === true) return this._callNodeServer(serviceInfo);
+    if (check) return this._callNodeServer(serviceInfo);
     else {
       await this.checkLogin(uid);
       return this._callNodeServer(serviceInfo);
     }
   }
   async callAsyncNodeServer(serviceInfo) {
-    return await this.callNodeServer(serviceInfo);
+    return await this._callNodeServer(serviceInfo);
   }
 
   _callNodeServer(serviceInfo) {
